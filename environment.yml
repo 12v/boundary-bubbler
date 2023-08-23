@@ -1,0 +1,8 @@
+name: boundary-mapper
+channels:
+  - defaults
+dependencies:
+  - python
+  - fiona
+  - rtree
+prefix: /Users/harry/miniconda3/envs/boundary-mapper
