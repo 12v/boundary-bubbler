@@ -104,9 +104,17 @@ def calculate_bubbles(boundary):
 
   return bubbles[:BUBBLE_LIMIT], bubblesData[:BUBBLE_LIMIT]
 
-with open('output/bubbles.csv', 'w') as csv_output:
-  writer = csv.writer(csv_output)
-  writer.writerow(['bubble', 'constituency'])
+with (
+  open('output/bubbles.csv', 'w') as csv_output,
+  open('output/statistics.csv', 'w') as stastics_output
+):
+  output_writer = csv.writer(csv_output)
+  output_writer.writerow(['bubble', 'constituency'])
+
+  statistics_writer = csv.writer(stastics_output)
+  statistics_writer.writerow(['constituency', 'coverage'])
+
+  statistics = []
 
   for constituency in constituencies:
     constituency_name = constituency[0]
@@ -117,7 +125,7 @@ with open('output/bubbles.csv', 'w') as csv_output:
 
     for (x, y, radius) in bubblesData:
       lat, long = transformer.transform(x, y)
-      writer.writerow(['({}, {}) +{}km'.format(lat, long, radius), constituency_name])
+      output_writer.writerow(['({}, {}) +{}km'.format(lat, long, radius), constituency_name])
 
     fig, ax = plt.subplots(1, 2)
     ax[0].set_aspect('equal', adjustable='box')
@@ -125,7 +133,8 @@ with open('output/bubbles.csv', 'w') as csv_output:
     fig.suptitle(constituency_name)
     coverage_percentage = 100 * union_all(bubbles).area / boundary.area
 
-    coverage_percentage = 100 * union_all(bubbles).area / boundary.area
+    statistics_writer.writerow([constituency_name, coverage_percentage])
+    statistics.append(coverage_percentage)
     fig.text(0.5, 0.9, '{:.0f}% coverage'.format(coverage_percentage), ha='center', fontsize=12)
 
     ax[0].xaxis.set_visible(False)
@@ -147,5 +156,12 @@ with open('output/bubbles.csv', 'w') as csv_output:
       ax[0].plot(x, y, color='red', linewidth=0.5)
       ax[1].fill(x, y, color='red')
 
-    fig.savefig('output/' + constituency_name + '.jpg', dpi=300)
+    fig.savefig('output/JPGs/' + constituency_name + '.jpg', dpi=300)
     plt.close(fig)
+  
+  statistics_writer.writerow(['', ''])
+  statistics_writer.writerow(['mean', sum(statistics) / len(statistics)])
+  statistics_writer.writerow(['median', np.median(statistics)])
+  statistics_writer.writerow(['min', min(statistics)])
+  statistics_writer.writerow(['max', max(statistics)])
+  statistics_writer.writerow(['sigma', np.std(statistics)])
