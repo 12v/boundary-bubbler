@@ -21,13 +21,13 @@ A visualisation of the circles calculated and coverage achieved for each constit
 The average coverage achieved is 86%.
 
 Vale of Glamorgan is the constituency covered most completely:
-![alt text](https://github.com/12v/boundary-bubbler/blob/main/output/JPGs/Vale%20of%20Glamorgan.jpg?raw=true)
+![Visualisation of the calculated circles and coverage for Vale of Glamorgan](https://github.com/12v/boundary-bubbler/blob/main/output/JPGs/Vale%20of%20Glamorgan.jpg?raw=true)
 
 Beaconsfield has coverage closest to the average:
-![alt text](https://github.com/12v/boundary-bubbler/blob/main/output/JPGs/Beaconsfield.jpg?raw=true)
+![Visualisation of the calculated circles and coverage for Beaconsfield](https://github.com/12v/boundary-bubbler/blob/main/output/JPGs/Beaconsfield.jpg?raw=true)
 
 Excluding constituencies that have no coverage at all, Southgate and Wood Green has the smallest coverage:
-![alt text](https://github.com/12v/boundary-bubbler/blob/main/output/JPGs/Southgate%20and%20Wood%20Green.jpg?raw=true)
+![Visualisation of the calculated circles and coverage for Southgate and Wood Green](https://github.com/12v/boundary-bubbler/blob/main/output/JPGs/Southgate%20and%20Wood%20Green.jpg?raw=true)
 
 Seven constituencies are small enough and/or awkwardly-shaped enough that they can't even fit any of the smallest 1km radius circles:
  - [Bermondsey and Old Southwark](https://github.com/12v/boundary-bubbler/blob/main/output/JPGs/Bermondsey%20and%20Old%20Southwark.jpg)
