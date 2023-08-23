@@ -1,8 +1,8 @@
-name: boundary-mapper
+name: bubbles
 channels:
   - defaults
 dependencies:
   - python
   - fiona
   - rtree
-prefix: /Users/harry/miniconda3/envs/boundary-mapper
+prefix: /Users/harry/miniconda3/envs/bubbles
