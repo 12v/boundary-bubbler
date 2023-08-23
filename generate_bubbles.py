@@ -27,10 +27,6 @@ def download_and_extract(url, path):
         zip_file = zipfile.ZipFile(io.BytesIO(response.content))
         zip_file.extractall('data/' + path)
 
-download_and_extract(england_shapefile_url, 'england')
-download_and_extract(scotland_shapefile_path, 'scotland')
-download_and_extract(wales_shapefile_path, 'wales')
-
 def create_constituency_list(shapefile_path, constituency_name_key):
    constituencies = []
    with fiona.open('data/' + shapefile_path) as boundaries:
@@ -38,17 +34,6 @@ def create_constituency_list(shapefile_path, constituency_name_key):
       constituency_shape = make_valid(shape(constituency['geometry']))
       constituencies.append((constituency.properties[constituency_name_key], constituency_shape))
     return constituencies
-
-england_constituencies = create_constituency_list('england/' + england_shapefile_filename, 'Constituen')
-scotland_constituencies = create_constituency_list('scotland/' + scotland_shapefile_filename, 'NAME')
-wales_constituencies = create_constituency_list('wales/' + wales_shapefile_filename, 'Official_N')
-
-constituencies = england_constituencies + scotland_constituencies + wales_constituencies
-
-if not os.path.exists('output'):
-    os.makedirs('output')
-
-transformer = pyproj.Transformer.from_crs("epsg:27700", "epsg:4326")
 
 def calculate_radius_upper_bound(boundary):
   mrr = minimum_rotated_rectangle(boundary)
@@ -102,64 +87,82 @@ def calculate_bubbles(boundary):
 
   return bubbles[:BUBBLE_LIMIT], bubblesData[:BUBBLE_LIMIT]
 
-with (
-  open('output/bubbles.csv', 'w') as csv_output,
-  open('output/statistics.csv', 'w') as stastics_output
-):
-  output_writer = csv.writer(csv_output)
-  output_writer.writerow(['bubble', 'constituency'])
+if __name__ == '__main__':
+  download_and_extract(england_shapefile_url, 'england')
+  download_and_extract(scotland_shapefile_path, 'scotland')
+  download_and_extract(wales_shapefile_path, 'wales')
 
-  statistics_writer = csv.writer(stastics_output)
-  statistics_writer.writerow(['constituency', 'coverage'])
+  england_constituencies = create_constituency_list('england/' + england_shapefile_filename, 'Constituen')
+  scotland_constituencies = create_constituency_list('scotland/' + scotland_shapefile_filename, 'NAME')
+  wales_constituencies = create_constituency_list('wales/' + wales_shapefile_filename, 'Official_N')
 
-  statistics = []
+  constituencies = england_constituencies + scotland_constituencies + wales_constituencies
 
-  for constituency in constituencies:
-    constituency_name = constituency[0]
-    boundary = constituency[1]
-    print(constituency_name)
+  if not os.path.exists('output'):
+      os.makedirs('output')
 
-    bubbles, bubblesData = calculate_bubbles(boundary)
+  transformer = pyproj.Transformer.from_crs("epsg:27700", "epsg:4326")
 
-    for (x, y, radius) in bubblesData:
-      lat, long = transformer.transform(x, y)
-      output_writer.writerow(['({}, {}) +{}km'.format(lat, long, radius), constituency_name])
+  with (
+    open('output/bubbles.csv', 'w') as csv_output,
+    open('output/statistics.csv', 'w') as stastics_output
+  ):
+    output_writer = csv.writer(csv_output)
+    output_writer.writerow(['bubble', 'constituency'])
 
-    fig, ax = plt.subplots(1, 2)
-    ax[0].set_aspect('equal', adjustable='box')
-    ax[1].set_aspect('equal', adjustable='box')
-    fig.suptitle(constituency_name)
-    coverage_percentage = 100 * union_all(bubbles).area / boundary.area
+    statistics_writer = csv.writer(stastics_output)
+    statistics_writer.writerow(['constituency', 'coverage'])
 
-    statistics_writer.writerow([constituency_name, coverage_percentage])
-    statistics.append(coverage_percentage)
-    fig.text(0.5, 0.9, '{:.0f}% coverage'.format(coverage_percentage), ha='center', fontsize=12)
+    statistics = []
 
-    ax[0].xaxis.set_visible(False)
-    ax[0].yaxis.set_visible(False)
+    for constituency in constituencies:
+      constituency_name = constituency[0]
+      boundary = constituency[1]
+      print(constituency_name)
 
-    ax[1].xaxis.set_visible(False)
-    ax[1].yaxis.set_visible(False)
+      bubbles, bubblesData = calculate_bubbles(boundary)
 
-    polygons = boundary.geoms if isinstance(boundary, GeometryCollection) or isinstance(boundary, MultiPolygon) else [boundary]
-    for polygon in polygons:
-      if isinstance(polygon, LineString):
-        continue
-      x, y = polygon.exterior.xy
-      ax[0].plot(x, y, color='blue')
-      ax[1].plot(x, y, color='blue')
+      for (x, y, radius) in bubblesData:
+        lat, long = transformer.transform(x, y)
+        output_writer.writerow(['({}, {}) +{}km'.format(lat, long, radius), constituency_name])
 
-    for valid_circle in bubbles:
-      x, y = valid_circle.exterior.xy
-      ax[0].plot(x, y, color='red', linewidth=0.5)
-      ax[1].fill(x, y, color='red')
+      fig, ax = plt.subplots(1, 2)
+      ax[0].set_aspect('equal', adjustable='box')
+      ax[1].set_aspect('equal', adjustable='box')
+      fig.suptitle(constituency_name)
+      coverage_percentage = 100 * union_all(bubbles).area / boundary.area
 
-    fig.savefig('output/JPGs/' + constituency_name + '.jpg', dpi=300)
-    plt.close(fig)
-  
-  statistics_writer.writerow(['', ''])
-  statistics_writer.writerow(['mean', sum(statistics) / len(statistics)])
-  statistics_writer.writerow(['median', np.median(statistics)])
-  statistics_writer.writerow(['min', min(statistics)])
-  statistics_writer.writerow(['max', max(statistics)])
-  statistics_writer.writerow(['sigma', np.std(statistics)])
+      statistics_writer.writerow([constituency_name, coverage_percentage])
+      statistics.append(coverage_percentage)
+      fig.text(0.5, 0.9, '{:.0f}% coverage'.format(coverage_percentage), ha='center', fontsize=12)
+
+      ax[0].xaxis.set_visible(False)
+      ax[0].yaxis.set_visible(False)
+
+      ax[1].xaxis.set_visible(False)
+      ax[1].yaxis.set_visible(False)
+
+      polygons = boundary.geoms if isinstance(boundary, GeometryCollection) or isinstance(boundary, MultiPolygon) else [boundary]
+      for polygon in polygons:
+        if isinstance(polygon, LineString):
+          continue
+        rings = [polygon.exterior] + [interior for interior in polygon.interiors]
+        for ring in rings:
+          x, y = ring.xy
+          ax[0].plot(x, y, color='blue')
+          ax[1].plot(x, y, color='blue')
+
+      for valid_circle in bubbles:
+        x, y = valid_circle.exterior.xy
+        ax[0].plot(x, y, color='red', linewidth=0.5)
+        ax[1].fill(x, y, color='red')
+
+      fig.savefig('output/JPGs/' + constituency_name + '.jpg', dpi=300)
+      plt.close(fig)
+    
+    statistics_writer.writerow(['', ''])
+    statistics_writer.writerow(['mean', sum(statistics) / len(statistics)])
+    statistics_writer.writerow(['median', np.median(statistics)])
+    statistics_writer.writerow(['min', min(statistics)])
+    statistics_writer.writerow(['max', max(statistics)])
+    statistics_writer.writerow(['sigma', np.std(statistics)])
