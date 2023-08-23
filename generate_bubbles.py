@@ -61,11 +61,11 @@ def calculate_radius_upper_bound(boundary):
   width = min(edge_lengths)
   return int((width // 2000) * 1000)
 
-def calculate_step(polygons, radius, iteration_count, bubble_length):
+def calculate_step(polygons, radius, bubble_length):
   total_polygon_length = sum([polygon.exterior.length for polygon in polygons])
   iteration_bubble_count = total_polygon_length / radius
   step = radius
-  is_last_iteration = radius == 1000 or iteration_count == 2 or (bubble_length + iteration_bubble_count) > BUBBLE_LIMIT
+  is_last_iteration = radius == 1000 or (bubble_length + iteration_bubble_count) > BUBBLE_LIMIT
   
   if is_last_iteration:
     step = total_polygon_length / (BUBBLE_LIMIT - bubble_length)
@@ -75,19 +75,18 @@ def calculate_step(polygons, radius, iteration_count, bubble_length):
 def calculate_bubbles(boundary):
   radius = calculate_radius_upper_bound(boundary)
   island_of_possibility = None
-  iteration_count = 0
   
   bubbles = []
   bubblesData = []
 
-  while radius > 0 and iteration_count < 3:
+  while radius > 0 and len(bubbles) < BUBBLE_LIMIT:
     island_of_possibility = buffer(boundary, -(radius + 30))
 
     if not is_empty(island_of_possibility):
       print(radius)
       polygons = island_of_possibility.geoms if isinstance(island_of_possibility, MultiPolygon) else [island_of_possibility]
 
-      step = calculate_step(polygons, radius, iteration_count, len(bubbles))
+      step = calculate_step(polygons, radius, len(bubbles))
       for polygon in polygons:
         for interpolation in np.arange(0, polygon.exterior.length, step):
           point = polygon.exterior.interpolate(interpolation)
@@ -97,7 +96,6 @@ def calculate_bubbles(boundary):
             bubblesData.append([point.x, point.y, int(radius / 1000)])
 
     if len(bubbles) > 0:
-      iteration_count += 1
       radius = (radius // 1500) * 1000
     else:
       radius -= 1000
