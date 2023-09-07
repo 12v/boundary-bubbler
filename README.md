@@ -45,3 +45,14 @@ Seven constituencies are small enough and/or awkwardly-shaped enough that they c
   - Change directory into the respository
   - Install the dependencies (e.g. using Anaconda)
   - Run `python generate_bubbles.py`
+
+
+ ## Was this done for the current/old/pre-2024 constituencies?
+
+ Yes!
+
+The calculated circles for the **old** constituencies can be found [here](https://github.com/12v/boundary-bubbler/blob/old_constituencies/output/bubbles.csv).
+
+The percentage coverage achieved for each **old** constituency can be found [here](https://github.com/12v/boundary-bubbler/blob/old_constituencies/output/statistics.csv).
+
+A visualisation of the circles calculated and coverage achieved for each **old** constituency can be found [here](https://github.com/12v/boundary-bubbler/tree/old_constituencies/output/JPGs).

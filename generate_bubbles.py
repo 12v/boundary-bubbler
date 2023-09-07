@@ -21,6 +21,12 @@ england_shapefile_filename = '2023_06_27_Final_recommendations_England.shp'
 scotland_shapefile_filename = 'All_Scotland_Final_Recommended_Constituencies_2023_Review.shp'
 wales_shapefile_filename = 'Final Recs Shapefiles/Final Recommendations_region.shp'
 
+old_shapefile_url = "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/PCON_DEC_2022_UK_BFE_V2/FeatureServer/replicafilescache/PCON_DEC_2022_UK_BFE_V2_2026052460784666068.zip"
+old_shapefile_filename = "PCON_DEC_2022_UK_BFE_V2.shp"
+
+new_shapefile_url = "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Westminster_Parliamentary_Constituencies_Future_UK_BFE/FeatureServer/replicafilescache/Westminster_Parliamentary_Constituencies_Future_UK_BFE_7491396314117499901.zip"
+new_shapefile_filename = "PCON_Future_EW_BFE.shp"
+
 def download_and_extract(url, path):
     if not os.path.exists('data/' + path):
         response = requests.get(url)
@@ -109,18 +115,24 @@ def get_statistics_row(constituency_name, coverage_percentage, bubblesData):
   return statistics_row
 
 if __name__ == '__main__':
-  download_and_extract(england_shapefile_url, 'england')
-  download_and_extract(scotland_shapefile_path, 'scotland')
-  download_and_extract(wales_shapefile_path, 'wales')
+  # download_and_extract(england_shapefile_url, 'england')
+  # download_and_extract(scotland_shapefile_path, 'scotland')
+  # download_and_extract(wales_shapefile_path, 'wales')
 
-  england_constituencies = create_constituency_list('england/' + england_shapefile_filename, 'Constituen')
-  scotland_constituencies = create_constituency_list('scotland/' + scotland_shapefile_filename, 'NAME')
-  wales_constituencies = create_constituency_list('wales/' + wales_shapefile_filename, 'Official_N')
+  # england_constituencies = create_constituency_list('england/' + england_shapefile_filename, 'Constituen')
+  # scotland_constituencies = create_constituency_list('scotland/' + scotland_shapefile_filename, 'NAME')
+  # wales_constituencies = create_constituency_list('wales/' + wales_shapefile_filename, 'Official_N')
 
-  constituencies = england_constituencies + scotland_constituencies + wales_constituencies
+  # constituencies = england_constituencies + scotland_constituencies + wales_constituencies
 
-  if not os.path.exists('output'):
-      os.makedirs('output')
+  download_and_extract(old_shapefile_url, "old_uk")
+  # download_and_extract(new_shapefile_url, "new_uk")
+
+  constituencies = create_constituency_list('old_uk/' + old_shapefile_filename, 'PCON22NM')
+  # constituencies = create_constituency_list('new_uk/' + new_shapefile_filename, 'PCON25NM')
+  
+  if not os.path.exists('output/JPGs'):
+      os.makedirs('output/JPGs')
 
   transformer = pyproj.Transformer.from_crs("epsg:27700", "epsg:4326")
 
