@@ -51,8 +51,8 @@ Seven constituencies are small enough and/or awkwardly-shaped enough that they c
 
  Yes!
 
-The calculated circles for the **old** constituencies can be found [here](https://github.com/12v/boundary-bubbler/blob/old_constituencies/output/bubbles.csv).
+The calculated circles for the **old** constituencies can be found [here](https://github.com/12v/boundary-bubbler/blob/old_constituencies/output/old-bubbles.csv).
 
-The percentage coverage achieved for each **old** constituency can be found [here](https://github.com/12v/boundary-bubbler/blob/old_constituencies/output/statistics.csv).
+The percentage coverage achieved for each **old** constituency can be found [here](https://github.com/12v/boundary-bubbler/blob/old_constituencies/output/old-statistics.csv).
 
 A visualisation of the circles calculated and coverage achieved for each **old** constituency can be found [here](https://github.com/12v/boundary-bubbler/tree/old_constituencies/output/JPGs).
