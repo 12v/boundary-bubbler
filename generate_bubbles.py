@@ -87,6 +87,27 @@ def calculate_bubbles(boundary):
 
   return bubbles[:BUBBLE_LIMIT], bubblesData[:BUBBLE_LIMIT]
 
+def get_statistics_row(constituency_name, coverage_percentage, bubblesData):
+  statistics_row = [constituency_name, coverage_percentage]
+
+  if len(bubblesData) == 0:
+    return statistics_row
+  
+  bubble_count_by_radius = {}
+  for (_, _, radius) in bubblesData:
+    if radius in bubble_count_by_radius:
+      bubble_count_by_radius[radius] += 1
+    else:
+      bubble_count_by_radius[radius] = 1
+
+  for radius in range(1, max(bubble_count_by_radius.keys()) + 1):
+    if radius in bubble_count_by_radius:
+      statistics_row.append(bubble_count_by_radius[radius])
+    else:
+      statistics_row.append(0)
+  
+  return statistics_row
+
 if __name__ == '__main__':
   download_and_extract(england_shapefile_url, 'england')
   download_and_extract(scotland_shapefile_path, 'scotland')
@@ -130,9 +151,9 @@ if __name__ == '__main__':
       ax[0].set_aspect('equal', adjustable='box')
       ax[1].set_aspect('equal', adjustable='box')
       fig.suptitle(constituency_name)
-      coverage_percentage = 100 * union_all(bubbles).area / boundary.area
 
-      statistics_writer.writerow([constituency_name, coverage_percentage])
+      coverage_percentage = 100 * union_all(bubbles).area / boundary.area
+      statistics_writer.writerow(get_statistics_row(constituency_name, coverage_percentage, bubblesData))
       statistics.append(coverage_percentage)
       fig.text(0.5, 0.9, '{:.0f}% coverage'.format(coverage_percentage), ha='center', fontsize=12)
 
