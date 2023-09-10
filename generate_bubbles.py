@@ -119,8 +119,8 @@ if __name__ == '__main__':
 
   constituencies = england_constituencies + scotland_constituencies + wales_constituencies
 
-  if not os.path.exists('output'):
-      os.makedirs('output')
+  if not os.path.exists('output/JPGs'):
+      os.makedirs('output/JPGs')
 
   transformer = pyproj.Transformer.from_crs("epsg:27700", "epsg:4326")
 
